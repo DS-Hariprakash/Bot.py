@@ -10,7 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from kivy.core.window import Window
 from kivy.uix.image import Image
 from bs4 import BeautifulSoup
-from ddgs import DDGS
+from duckduckgo_search import ddg
 import smtplib, datetime, requests, os, json, webbrowser
 
 Window.size = (400, 700)
@@ -27,11 +27,11 @@ def fetch_jobs_ddgs(keyword, location, min_exp=0, max_exp=10, max_results=10):
     query = f"{keyword} jobs in {location} {min_exp}-{max_exp} years experience"
     jobs = []
     seen = load_sent_jobs()
-    with DDGS() as ddgs:
-        for r in ddgs.text(query, region="in-en", safesearch="moderate", max_results=max_results):
-            title, link, desc = r.get("title", ""), r.get("href", ""), r.get("body", "")
-            if title and link and link not in seen:
-                jobs.append({"title": title, "link": link, "desc": desc or "No description available"})
+    results = ddg(query, region="in-en", safesearch="moderate", max_results=max_results)
+    for r in results:
+        title, link, desc = r.get("title", ""), r.get("href", ""), r.get("body", "")
+        if title and link and link not in seen:
+            jobs.append({"title": title, "link": link, "desc": desc or "No description available"})
     return jobs
 
 def load_sent_jobs():
@@ -91,12 +91,8 @@ def send_custom_message(receiver_email, message_text):
     return "✅ Custom message sent!"
 
 def search_web(query, max_results=3):
-    results = []
-    with DDGS() as ddgs:
-        for r in ddgs.text(query, region="in-en", safesearch="moderate", max_results=max_results):
-            if r.get("title") and r.get("href"):
-                results.append(r)
-    return results
+    results = ddg(query, region="in-en", safesearch="moderate", max_results=max_results)
+    return results if results else []
 
 def summarize_page(url):
     try:
