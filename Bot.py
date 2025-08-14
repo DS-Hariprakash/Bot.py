@@ -13,6 +13,8 @@ from bs4 import BeautifulSoup
 from duckduckgo_search import ddg
 import smtplib, datetime, requests, os, json, webbrowser
 
+
+
 Window.size = (400, 700)
 
 # --- CONFIG ---
